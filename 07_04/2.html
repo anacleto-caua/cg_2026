@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Three.js Activity</title>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <script src="https://cdn.jsdelivr.net/npm/three@latest/build/three.min.js"></script>
+    <script>
+      var scene = new THREE.Scene();
+      var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+      camera.position.z = 10;
+
+      var renderer = new THREE.WebGLRenderer();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.body.appendChild(renderer.domElement);
+
+      // Green Cube
+      var geometry = new THREE.BoxGeometry(1.5, 1.5, 1.5);
+      var material = new THREE.MeshBasicMaterial({ color: 0x00ff00 }); // Bright green
+      var cube = new THREE.Mesh(geometry, material);
+      scene.add(cube);
+
+      // Path parameters
+      var angle = 0;
+      var radius = 5;
+      var path_speed = 0.003;
+      var translation_speed = 0.03;
+
+      // Main loop and kickstart
+      function animate() {
+        requestAnimationFrame(animate);
+
+        cube.rotation.x += translation_speed;
+        cube.rotation.y += translation_speed;
+
+        angle += path_speed;
+        cube.position.x = radius * Math.cos(angle);
+        cube.position.y = radius * Math.sin(angle);
+
+        renderer.render(scene, camera);
+      }
+
+      animate();
+
+      // Resize
+      window.addEventListener('resize', onWindowResize, false);
+      function onWindowResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      }
+    </script>
+  </body>
+</html>

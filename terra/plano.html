@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Translação e Rotação - Terra Plana</title>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+        background-color: #050510;
+      }
+    </style>
+  </head>
+  <body>
+    <script src="https://cdn.jsdelivr.net/npm/three@latest/build/three.min.js"></script>
+    <script>
+      const scene = new THREE.Scene();
+
+      const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      camera.position.set(0, 15, 25);
+      camera.lookAt(0, 0, 0);
+
+      const renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.body.appendChild(renderer.domElement);
+
+      const ambientLight = new THREE.AmbientLight(0x404040);
+      scene.add(ambientLight);
+
+      const pointLight = new THREE.PointLight(0xffffff, 2, 100);
+      pointLight.position.set(0, 0, 0);
+      scene.add(pointLight);
+
+      const sunGeometry = new THREE.SphereGeometry(3, 32, 32);
+      const sunMaterial = new THREE.MeshBasicMaterial({ color: 0xffd700 });
+      const sun = new THREE.Mesh(sunGeometry, sunMaterial);
+      scene.add(sun);
+
+      const texture = new THREE.TextureLoader().load('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg');
+
+      const earthGeometry = new THREE.CylinderGeometry(3, 3, 0.5, 32);
+      const earthMaterial = new THREE.MeshStandardMaterial({ map: texture });
+      const earth = new THREE.Mesh(earthGeometry, earthMaterial);
+      scene.add(earth);
+
+      let angle = 0;
+      const orbitSpeed = 0.01;
+      const rotationSpeed = 0.05;
+
+      function animate() {
+        requestAnimationFrame(animate);
+
+        angle += orbitSpeed;
+        earth.position.x = 15 * Math.cos(angle);
+        earth.position.z = 15 * Math.sin(angle);
+
+        earth.rotation.y += rotationSpeed;
+
+        renderer.render(scene, camera);
+      }
+
+      animate();
+
+      window.addEventListener('resize', onWindowResize, false);
+
+      function onWindowResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      }
+    </script>
+  </body>
+</html>

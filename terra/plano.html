@@ -23,38 +23,87 @@
       const renderer = new THREE.WebGLRenderer({ antialias: true });
       renderer.setSize(window.innerWidth, window.innerHeight);
       document.body.appendChild(renderer.domElement);
+      const texLoader = new THREE.TextureLoader();
 
-      const ambientLight = new THREE.AmbientLight(0x404040);
+
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.02);
       scene.add(ambientLight);
 
-      const pointLight = new THREE.PointLight(0xffffff, 2, 100);
-      pointLight.position.set(0, 0, 0);
-      scene.add(pointLight);
 
-      const sunGeometry = new THREE.SphereGeometry(3, 32, 32);
-      const sunMaterial = new THREE.MeshBasicMaterial({ color: 0xffd700 });
-      const sun = new THREE.Mesh(sunGeometry, sunMaterial);
-      scene.add(sun);
+      const earthTexture = texLoader.load("https://upload.wikimedia.org/wikipedia/commons/7/79/Flat_earth.jpg?_=20080615124701");
 
-      const texture = new THREE.TextureLoader().load('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg');
+      const sideMaterial = new THREE.MeshStandardMaterial({ color: 0x5c4033 });
+      const topMaterial = new THREE.MeshStandardMaterial({ map: earthTexture });
+      const bottomMaterial = new THREE.MeshStandardMaterial({ color: 0x2e2019 });
 
-      const earthGeometry = new THREE.CylinderGeometry(3, 3, 0.5, 32);
-      const earthMaterial = new THREE.MeshStandardMaterial({ map: texture });
-      const earth = new THREE.Mesh(earthGeometry, earthMaterial);
+      const earthMaterials = [sideMaterial, topMaterial, bottomMaterial];
+
+      const earthGeometry = new THREE.CylinderGeometry(15, 15, 0.5, 128);
+      const earthMaterial = new THREE.MeshStandardMaterial({
+          map: earthTexture,
+          roughness: 1
+      });
+      const earth = new THREE.Mesh(earthGeometry, earthMaterials);
+      earth.position.x = 0;
+      earth.position.y = 0;
+      earth.position.z = 0;
+      earth.receiveShadow = true;
+      earth.castShadow = true;
       scene.add(earth);
 
+
+      const moonTexture = texLoader.load("https://threejs.org/examples/textures/planets/moon_1024.jpg");
+      const moonGeometry = new THREE.SphereGeometry(0.8, 32, 32);
+      const moonMaterial = new THREE.MeshStandardMaterial({
+        map: moonTexture,
+        roughness: 1
+      });
+      const moon = new THREE.Mesh(moonGeometry, moonMaterial);
+      moon.position.x = 0;
+      moon.position.y = 5;
+      moon.position.z = 0;
+      moon.castShadow = true;
+      moon.receiveShadow = true;
+      scene.add(moon);
+
+      const sunTexture = texLoader.load("https://threejs.org/examples/textures/planets/moon_1024.jpg");
+      const sunGeometry = new THREE.SphereGeometry(.8, 32, 32);
+      const sunMaterial = new THREE.MeshBasicMaterial({
+          map: sunTexture,
+          color: 0xff9900
+      });
+      const sun = new THREE.Mesh(sunGeometry, sunMaterial);
+      sun.position.x = 0;
+      sun.position.y = 5;
+      sun.position.z = 0;
+      scene.add(sun);
+
+      const pointLight = new THREE.PointLight(0xffffff, 50, 250);
+      pointLight.castShadow = true;
+      pointLight.shadow.mapSize.width = window.innerWidth;
+      pointLight.shadow.mapSize.height = window.innerHeight;
+      sun.add(pointLight);
+
+
       let angle = 0;
-      const orbitSpeed = 0.01;
-      const rotationSpeed = 0.05;
+      const orbitSpeed = 0.015;
+      const rotationSpeed = 0.0005;
+      const orbitArc = 10;
 
       function animate() {
         requestAnimationFrame(animate);
 
         angle += orbitSpeed;
-        earth.position.x = 15 * Math.cos(angle);
-        earth.position.z = 15 * Math.sin(angle);
 
-        earth.rotation.y += rotationSpeed;
+        moon.position.x = orbitArc * Math.cos(angle);
+        moon.position.z = orbitArc * Math.sin(angle);
+
+        sun.position.x = -orbitArc * Math.cos(angle);
+        sun.position.z = -orbitArc * Math.sin(angle);
+
+        moon.rotation.y += rotationSpeed;
+
+        sun.rotation.y += rotationSpeed;
 
         renderer.render(scene, camera);
       }
@@ -67,6 +116,8 @@
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
+        pointLight.shadow.mapSize.width = window.innerWidth;
+        pointLight.shadow.mapSize.height = window.innerHeight;
       }
     </script>
   </body>
